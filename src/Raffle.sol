@@ -96,7 +96,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
         //also less gas efficient and needs to compile with via-ir
         // require(msg.value >= ENTRANCE_FEE, NotEnoughEth());
 
-        if(s_RaffleState != RaffleState.OPEN) {
+        if (s_RaffleState != RaffleState.OPEN) {
             revert Raffle__RaffleNotOpen();
         }
     }
@@ -139,18 +139,18 @@ contract Raffle is VRFConsumerBaseV2Plus {
         uint256 indexOfWinner = randomWords[0] % s_players.length;
         address payable recentWinner = s_players[indexOfWinner];
         s_recentWinner = recentWinner;
-
         // @dev after winner has been picked, the raffle state becomes open again
         s_RaffleState = RaffleState.OPEN;
-        // @dev we reset the array after a winner has been picked 
-        s_players = new address payable [](0);
+        // @dev we reset the array after a winner has been picked
+        s_players = new address payable[](0);
         s_lastTimeStamp = block.timestamp;
+        // @dev we placed the emitted event here cos its within the contract state, not external
+        emit WinnerPicked(s_recentWinner);
 
-        // Interactions
+        // Interactions(External contract Interactions)
         (bool success,) = recentWinner.call{value: address(this).balance}("");
         if (!success) {
             revert Raffle__TransferFailed();
         }
-        emit WinnerPicked(s_recentWinner);
     }
 }
