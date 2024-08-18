@@ -45,6 +45,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
     enum RaffleState {
         OPEN, //vlaue of first enum is "0"
         CALCULATING //value of 2nd enum is "1"
+
     }
 
     /* State Variables */
@@ -148,7 +149,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
     }
 
     // CEIs(checks effects interactions)
-    function fulfillRandomWords(uint256 /*requestId*/, uint256[] calldata randomWords) internal override {
+    function fulfillRandomWords(uint256, /*requestId*/ uint256[] calldata randomWords) internal override {
         // Checks
 
         // effects(Internal contract state)
