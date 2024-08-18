@@ -39,11 +39,12 @@ contract Raffle is VRFConsumerBaseV2Plus {
     error Raffle__NotEnoughTimePassed();
     error Raffle__TransferFailed();
     error Raffle__RaffleNotOpen();
+    error Raffle__upKeepNotNeeded(uint256 balance, uint256 noOfPlayers, uint256 stateOfRaffle);
 
     /* Type declarations */
     enum RaffleState {
-        OPEN,
-        CALCULATING
+        OPEN, //vlaue of first enum is "0"
+        CALCULATING //value of 2nd enum is "1"
     }
 
     /* State Variables */
@@ -101,10 +102,25 @@ contract Raffle is VRFConsumerBaseV2Plus {
         }
     }
 
-    function pickWinner() external {
-        if ((block.timestamp - s_lastTimeStamp) > i_interval) {
-            revert Raffle__NotEnoughTimePassed();
+    /**
+     * @dev this is the function that tells the chainlink nodes when to pick our winner
+     */
+    function checkUpkeep(bytes memory) public view returns (bool upKeepNeeded, bytes memory /* Perform data */ ) {
+        bool timeHasPassed = ((block.timestamp - s_lastTimeStamp) >= i_interval);
+        bool isOpen = s_RaffleState == RaffleState.OPEN;
+        bool hasBalance = address(this).balance > 0;
+        bool hasPlayers = s_players.length > 0;
+
+        upKeepNeeded = timeHasPassed && isOpen && hasBalance && hasPlayers;
+        return (upKeepNeeded, "");
+    }
+
+    function performUpKeep(bytes calldata) external {
+        (bool upKeepNeeded,) = checkUpkeep("");
+        if (!upKeepNeeded) {
+            revert Raffle__upKeepNotNeeded(address(this).balance, s_players.length, uint256(s_RaffleState));
         }
+
         s_RaffleState = RaffleState.CALCULATING;
         VRFV2PlusClient.RandomWordsRequest memory request = VRFV2PlusClient.RandomWordsRequest({
             keyHash: i_keyHash,
@@ -117,7 +133,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
                 VRFV2PlusClient.ExtraArgsV1({nativePayment: false})
             )
         });
-        uint256 requestId = s_vrfCoordinator.requestRandomWords(request);
+        s_vrfCoordinator.requestRandomWords(request);
     }
 
     // i_entrance fee is stored on state so view function makes sense
@@ -132,7 +148,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
     }
 
     // CEIs(checks effects interactions)
-    function fulfillRandomWords(uint256 requestId, uint256[] calldata randomWords) internal override {
+    function fulfillRandomWords(uint256 /*requestId*/, uint256[] calldata randomWords) internal override {
         // Checks
 
         // effects(Internal contract state)
