@@ -52,7 +52,7 @@ contract RaffleTest is Test {
 
     function testRaffleUpdatesPlayersWhenTheyEnter() public {
         // Arrange
-        vm.startprank(PLAYER);
+        vm.startPrank(PLAYER);
         console.log(PLAYER);
         // Act
         uint256 entranceFee = raffle.getEntranceFee();
@@ -61,6 +61,6 @@ contract RaffleTest is Test {
         address playerRecorded = raffle.getPlayer(0);
         assert(playerRecorded == PLAYER);
         console.log(playerRecorded);
-        vm.stopPrank();
+        // vm.stopPrank();
     }
 }
