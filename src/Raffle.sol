@@ -39,7 +39,7 @@ import {VRFV2PlusClient} from "lib/chainlink-brownie-contracts/contracts/src/v0.
  */
 contract Raffle is VRFConsumerBaseV2Plus {
     /* Errors */
-    error Raffle__NotEnoughEth();
+    error Raffle__NotEnoughEthSent();
     error Raffle__NotEnoughTimePassed();
     error Raffle__TransferFailed();
     error Raffle__RaffleNotOpen();
@@ -53,18 +53,18 @@ contract Raffle is VRFConsumerBaseV2Plus {
     }
 
     /* State Variables */
-    uint256 private constant ENTRANCE_FEE = 0.1 ether;
-    uint16 private constant REQUEST_CONFIRMATIONS = 3;
-    uint8 private constant NUM_WORDS = 1;
+    uint256 public constant ENTRANCE_FEE = 0.1 ether;
+    uint16 public constant REQUEST_CONFIRMATIONS = 3;
+    uint8 public constant NUM_WORDS = 1;
     // @dev how frequently our winner is going to be picked in seconds
-    uint256 private immutable i_interval;
-    bytes32 private immutable i_keyHash;
-    uint256 private immutable i_subscriptionId;
-    uint32 private immutable i_callbackGasLimit;
-    address payable[] private s_players;
-    address private s_recentWinner;
-    uint256 private s_lastTimeStamp;
-    RaffleState private s_RaffleState;
+    uint256 public immutable i_interval;
+    bytes32 public immutable i_keyHash;
+    uint256 public immutable i_subscriptionId;
+    uint32 public immutable i_callbackGasLimit;
+    address payable[] public s_players;
+    address public s_recentWinner;
+    uint256 public s_lastTimeStamp;
+    RaffleState public s_RaffleState;
     /* Events */
 
     event RaffleEntered(address indexed player, uint256 indexed amount);
@@ -92,7 +92,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
 
         /* For version 0.8.24 */
         if (msg.value < ENTRANCE_FEE) {
-            revert Raffle__NotEnoughEth();
+            revert Raffle__NotEnoughEthSent();
         }
         s_players.push(payable(msg.sender));
         emit RaffleEntered(msg.sender, msg.value);
@@ -145,12 +145,6 @@ contract Raffle is VRFConsumerBaseV2Plus {
     // however if entrance fee was a constant, pure function makes sense cos its not stored on state but embedded into bytecode
     // also if it was a regular state variable view would be used cos its stored in state
 
-    /**
-     * Getter functions
-     */
-    function getEntranceFee() external pure returns (uint256) {
-        return ENTRANCE_FEE;
-    }
 
     // CEIs(checks effects interactions)
     function fulfillRandomWords(uint256, /*requestId*/ uint256[] calldata randomWords) internal override {
@@ -173,5 +167,19 @@ contract Raffle is VRFConsumerBaseV2Plus {
         if (!success) {
             revert Raffle__TransferFailed();
         }
+    }
+    /**
+     * Getter functions
+     */
+    function getEntranceFee() external pure returns (uint256) {
+        return ENTRANCE_FEE;
+    }
+
+    function getRaffleState() external view returns (RaffleState) {
+        return s_RaffleState;
+    }
+
+    function getPlayer(uint256 indexOfPlayer) external view returns(address) {
+        return s_players[indexOfPlayer];
     }
 }

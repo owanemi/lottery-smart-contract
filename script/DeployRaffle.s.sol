@@ -12,7 +12,7 @@ contract DeployRaffle is Script {
 
     function deployRaffle() external returns (Raffle, HelperConfig) {
         HelperConfig helperConfig = new HelperConfig();
-        HelperConfig.NetworkConfig memory config = helperConfig.getSepoliaConfig;
+        HelperConfig.NetworkConfig memory config = helperConfig.getSepoliaConfig();
 
         vm.startBroadcast();
         Raffle raffle = new Raffle(

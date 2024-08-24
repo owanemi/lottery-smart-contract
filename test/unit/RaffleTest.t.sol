@@ -6,6 +6,8 @@ import {DeployRaffle} from "script/DeployRaffle.s.sol";
 import {Raffle} from "src/Raffle.sol";
 import {HelperConfig} from "script/HelperConfig.s.sol";
 
+// import {Vm} from "lib/forge-std/Vm.sol";
+
 contract RaffleTest is Test {
     Raffle public raffle;
     HelperConfig public helperConfig;
@@ -17,7 +19,7 @@ contract RaffleTest is Test {
     uint32 callbackGasLimit;
 
     address public PLAYER = makeAddr("Owanemi");
-    uint256 public constant STARTING_PLAYER_BALANCE = 1 ether;
+    uint256 public constant STARTING_PLAYER_BALANCE = 10 ether;
 
     function setUp() external {
         DeployRaffle deployer = new DeployRaffle();
@@ -28,9 +30,37 @@ contract RaffleTest is Test {
         gasLane = config.gasLane;
         subscriptionId = config.subscriptionId;
         callbackGasLimit = config.callbackGasLimit;
+        vm.deal(PLAYER, STARTING_PLAYER_BALANCE);
     }
 
-    function testRaffleStartsInOpenState() {
+    function testRaffleStartsInOpenState() public view {
+        assert(raffle.getRaffleState() == Raffle.RaffleState.OPEN);
+    }
 
+    /*//////////////////////////////////////////////////////////////
+                              ENTER RAFFLE
+    //////////////////////////////////////////////////////////////*/
+
+    function testRaffleRevertsWhenEntranceFeeisNotEnough() public {
+        // Arrange
+        vm.prank(PLAYER);
+        // Act/Assert
+        vm.expectRevert(Raffle.Raffle__NotEnoughEthSent.selector);
+        raffle.enterRaffle();
+        // assert(raffle.ENTRANCE_FEE > )
+    }
+
+    function testRaffleUpdatesPlayersWhenTheyEnter() public {
+        // Arrange
+        vm.startprank(PLAYER);
+        console.log(PLAYER);
+        // Act
+        uint256 entranceFee = raffle.getEntranceFee();
+        raffle.enterRaffle{value: entranceFee}();
+        // Assert
+        address playerRecorded = raffle.getPlayer(0);
+        assert(playerRecorded == PLAYER);
+        console.log(playerRecorded);
+        vm.stopPrank();
     }
 }
