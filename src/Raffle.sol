@@ -65,7 +65,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
     address public s_recentWinner;
     uint256 public s_lastTimeStamp;
     RaffleState public s_RaffleState;
-    
+
     /* Events */
     event RaffleEntered(address indexed player, uint256 indexed amount);
     event WinnerPicked(address indexed winner);
@@ -145,7 +145,6 @@ contract Raffle is VRFConsumerBaseV2Plus {
     // however if entrance fee was a constant, pure function makes sense cos its not stored on state but embedded into bytecode
     // also if it was a regular state variable view would be used cos its stored in state
 
-
     // CEIs(checks effects interactions)
     function fulfillRandomWords(uint256, /*requestId*/ uint256[] calldata randomWords) internal override {
         // Checks
@@ -171,6 +170,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
     /**
      * Getter functions
      */
+
     function getEntranceFee() external pure returns (uint256) {
         return ENTRANCE_FEE;
     }
@@ -179,7 +179,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
         return s_RaffleState;
     }
 
-    function getPlayer(uint256 indexOfPlayer) external view returns(address) {
+    function getPlayer(uint256 indexOfPlayer) external view returns (address) {
         return s_players[indexOfPlayer];
     }
 }

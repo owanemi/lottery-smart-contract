@@ -14,13 +14,11 @@ contract DeployRaffle is Script {
         HelperConfig helperConfig = new HelperConfig();
         HelperConfig.NetworkConfig memory config = helperConfig.getSepoliaConfig();
 
+        if (config.subscriptionId == 0) {}
+
         vm.startBroadcast();
         Raffle raffle = new Raffle(
-            config.interval, 
-            config.vrfCoordinator, 
-            config.gasLane, 
-            config.subscriptionId, 
-            config.callbackGasLimit
+            config.interval, config.vrfCoordinator, config.gasLane, config.subscriptionId, config.callbackGasLimit
         );
         vm.stopBroadcast();
         return (raffle, helperConfig);

@@ -6,8 +6,6 @@ import {DeployRaffle} from "script/DeployRaffle.s.sol";
 import {Raffle} from "src/Raffle.sol";
 import {HelperConfig} from "script/HelperConfig.s.sol";
 
-// import {Vm} from "lib/forge-std/Vm.sol";
-
 contract RaffleTest is Test {
     Raffle public raffle;
     HelperConfig public helperConfig;
@@ -20,6 +18,7 @@ contract RaffleTest is Test {
 
     address public PLAYER = makeAddr("Owanemi");
     uint256 public constant STARTING_PLAYER_BALANCE = 10 ether;
+    uint256 public constant ENTRANCE_FEE = 0.1 ether;
 
     event RaffleEntered(address indexed player, uint256 indexed amount);
     event WinnerPicked(address indexed winner);
@@ -55,26 +54,37 @@ contract RaffleTest is Test {
 
     function testRaffleUpdatesPlayersWhenTheyEnter() public {
         // Arrange
-        vm.startPrank(PLAYER);
+        vm.prank(PLAYER);
         console.log(PLAYER);
         // Act
-        uint256 entranceFee = raffle.getEntranceFee();
-        raffle.enterRaffle{value: entranceFee}();
+        raffle.enterRaffle{value: ENTRANCE_FEE}();
         // Assert
         address playerRecorded = raffle.getPlayer(0);
         assert(playerRecorded == PLAYER);
         console.log(playerRecorded);
-        vm.stopPrank();
     }
 
     function testEnteringRaffleEmitsEvent() public {
         // arrange
-        vm.startPrank(PLAYER);
+        vm.prank(PLAYER);
         // act
         vm.expectEmit(true, true, false, false, address(raffle));
-        emit RaffleEntered(address(0), raffle.ENTRANCE_FEE());
+        emit RaffleEntered(PLAYER, ENTRANCE_FEE);
         // assert
-        raffle.enterRaffle{value: raffle.ENTRANCE_FEE()}();   
-        vm.stopPrank();
+        raffle.enterRaffle{value: ENTRANCE_FEE}();
+    }
+
+    function testRejectNewPlayerWhileRaffleCalculating() public {
+        // arrange
+        vm.prank(PLAYER);
+        raffle.enterRaffle{value: ENTRANCE_FEE}();
+        vm.warp(block.timestamp + interval + 1);
+        vm.roll(block.number + 1);
+        raffle.performUpKeep("");
+
+        // act/assert
+        vm.expectRevert(Raffle.Raffle__RaffleNotOpen.selector);
+        vm.prank(PLAYER);
+        raffle.enterRaffle{value: ENTRANCE_FEE}();
     }
 }
