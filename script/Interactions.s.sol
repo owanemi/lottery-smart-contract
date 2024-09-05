@@ -63,27 +63,27 @@ contract FundSubscription is Script, CodeConstants {
     }
 }
 
-contract AddConsumer is Script {
-    function addConsumerUsingConfig(address mostRecentlyDeployed) public {
-        HelperConfig helperConfig = new HelperConfig();
-        uint256 subId = helperConfig.getConfig().subscriptionId;
-        address vrfCoordinator = helperConfig.getConfig().vrfCoordinator;
-        addConsumer(mostRecentlyDeployed, vrfCoordinator, subId);
-    }
+// contract AddConsumer is Script {
+//     function addConsumerUsingConfig(address mostRecentlyDeployed) public {
+//         HelperConfig helperConfig = new HelperConfig();
+//         uint256 subId = helperConfig.getConfig().subscriptionId;
+//         address vrfCoordinator = helperConfig.getConfig().vrfCoordinator;
+//         addConsumer(mostRecentlyDeployed, vrfCoordinator, subId);
+//     }
 
-    function addConsumer(address contractToAddToVrf, address vrfCoordinator, uint256 subId) public {
-        console.log("Adding consumer to contract: ", contractToAddToVrf);
-        console.log("Adding consumer to subscription: ", vrfCoordinator);
-        console.log("Using subscription id: ", subId);
-        console.log("On chain id: ", block.chainid);
+// function addConsumer(address contractToAddToVrf, address vrfCoordinator, uint256 subId) public {
+//     console.log("Adding consumer to contract: ", contractToAddToVrf);
+//     console.log("Adding consumer to subscription: ", vrfCoordinator);
+//     console.log("Using subscription id: ", subId);
+//     console.log("On chain id: ", block.chainid);
 
-        vm.startBroadcast();
-        VRFCoordinatorV2_5Mock(vrfCoordinator).addConsumer(subId, contractToAddToVrf);
-        vm.stopBroadcast();
-    }
+//     vm.startBroadcast();
+//     VRFCoordinatorV2_5Mock(vrfCoordinator).addConsumer(subId, contractToAddToVrf);
+//     vm.stopBroadcast();
+// }
 
-    function run() external {
-        address mostRecentContract = DevOpsTools.get_most_recent_deployment("Raffle", block.chainid);
-        addConsumerUsingConfig(mostRecentContract);
-    }
-}
+// function run() external {
+//     address mostRecentContract = DevOpsTools.get_most_recent_deployment("Raffle", block.chainid);
+//     addConsumerUsingConfig(mostRecentContract);
+// }
+// }
