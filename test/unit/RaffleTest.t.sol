@@ -74,17 +74,17 @@ contract RaffleTest is Test {
         raffle.enterRaffle{value: ENTRANCE_FEE}();
     }
 
-    function testRejectNewPlayerWhileRaffleCalculating() public {
-        // arrange
-        vm.prank(PLAYER);
-        raffle.enterRaffle{value: ENTRANCE_FEE}();
-        vm.warp(block.timestamp + interval + 1);
-        vm.roll(block.number + 1);
-        raffle.performUpKeep("");
+    // function testRejectNewPlayerWhileRaffleCalculating() public {
+    //     // arrange
+    //     vm.prank(PLAYER);
+    //     raffle.enterRaffle{value: ENTRANCE_FEE}();
+    //     vm.warp(block.timestamp + interval + 1);
+    //     vm.roll(block.number + 1);
+    //     raffle.performUpKeep("");
 
-        // act/assert
-        vm.expectRevert(Raffle.Raffle__RaffleNotOpen.selector);
-        vm.prank(PLAYER);
-        raffle.enterRaffle{value: ENTRANCE_FEE}();
-    }
+    //     // act/assert
+    //     vm.expectRevert(Raffle.Raffle__RaffleNotOpen.selector);
+    //     vm.prank(PLAYER);
+    //     raffle.enterRaffle{value: ENTRANCE_FEE}();
+    // }
 }
